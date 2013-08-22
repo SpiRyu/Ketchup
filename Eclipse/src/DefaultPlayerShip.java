@@ -31,7 +31,7 @@ public class DefaultPlayerShip extends PlayerShip {
 	//Zeichnen des Schiffes
 	@Override
 	public void paintShip(Graphics g) {
-		g.drawImage(img, x, y, null);
+		g.drawImage(img, (int)x, (int)y, null);
 	}
 
 	//Position updaten
