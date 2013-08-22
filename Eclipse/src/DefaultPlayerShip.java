@@ -18,11 +18,17 @@ public class DefaultPlayerShip extends PlayerShip {
 	//Bild
 	private Image img;
 
-	//Gibt an, ob in X oder Y-Richtung bewegt wird (z.B. X: -1 = Links, 0 = Nichts, 1 = Rechts)
+	//Gibt die X/Y-Richtung an in die bewegt wird (z.B. X: -1 = Links, 0 = Nichts, 1 = Rechts)
 	private int[] direction = { 0, 0 };
+	
+	//Gibt die Geschwindigkeiten in X bzw. Y-Richtung an
+	private float[] velocities = { 0, 0 };
+	
+	//Beschleunigung in Pixel pro Schleifendurchlauf pro Schleifendurchlauf
+	private float acceleration = 0.1f;
 
 	//Konstruktor
-	public DefaultPlayerShip(int x, int y) throws IOException {
+	public DefaultPlayerShip(float x, float y) throws IOException {
 		super(x, y, 75, 75);
 		//Datei einlesen
 		img = ImageIO.read(new File("PlayerShip.png"));
@@ -37,8 +43,35 @@ public class DefaultPlayerShip extends PlayerShip {
 	//Position updaten
 	@Override
 	public void update() {
-		x += direction[0] * 3;
-		y += direction[1] * 3;
+		//X und Y Achse durchgehen
+		for (int i = 0; i <= 1; i++) {
+			
+			//Fall 1: Garnichts
+			if (direction[i] == 0 && velocities[i] == 0) {
+				continue;
+			}
+			//Fall 2: Kommando in eine Richtung ist da -> Beschleunigen
+			else if (direction[i] != 0) {
+				velocities[i] += acceleration*direction[i];
+			}
+			//Fall 3: Kein Kommando, Geschwindigkeit da -> Abbremsen
+			else if (velocities[i] != 0) {
+				System.out.println("Bremsen!");
+				int brakeDirection = (velocities[i]>0)?1:-1;
+				System.out.println("Geschwindigkeit vorher: " + velocities[i]);
+				velocities[i] -= acceleration*brakeDirection;
+				System.out.println("Geschwindigkeit nachher: " + velocities[i]);
+				//Überprüfung: Wenn Geschwindigkeit in andere Richtung geht, wurde zu viel gebremst. Auf 0 setzen!
+				if (brakeDirection == -1 && velocities[i] > 0 || brakeDirection == 1 && velocities[i] < 0) {
+					System.out.println("Überschritten: " + brakeDirection + " ~ " + velocities[i]);
+					direction[i] = 0;
+					velocities[i] = 0;
+				}
+			}
+			
+		}
+		x += velocities[0];
+		y += velocities[1];
 	}
 
 	//Abfangen von Tastendrücken
