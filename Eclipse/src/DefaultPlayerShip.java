@@ -56,14 +56,10 @@ public class DefaultPlayerShip extends PlayerShip {
 			}
 			//Fall 3: Kein Kommando, Geschwindigkeit da -> Abbremsen
 			else if (velocities[i] != 0) {
-				System.out.println("Bremsen!");
 				int brakeDirection = (velocities[i]>0)?1:-1;
-				System.out.println("Geschwindigkeit vorher: " + velocities[i]);
 				velocities[i] -= acceleration*brakeDirection;
-				System.out.println("Geschwindigkeit nachher: " + velocities[i]);
 				//Überprüfung: Wenn Geschwindigkeit in andere Richtung geht, wurde zu viel gebremst. Auf 0 setzen!
 				if (brakeDirection == -1 && velocities[i] > 0 || brakeDirection == 1 && velocities[i] < 0) {
-					System.out.println("Überschritten: " + brakeDirection + " ~ " + velocities[i]);
 					direction[i] = 0;
 					velocities[i] = 0;
 				}
