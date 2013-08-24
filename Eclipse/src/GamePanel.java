@@ -12,31 +12,31 @@ import javax.swing.JPanel;
  * 
  */
 public class GamePanel extends JPanel implements KeyListener {
-	
-	//Konstanten. Breite und Höhe
+
+	// Konstanten. Breite und Höhe
 	private final static int PANEL_WIDTH = 1000;
 	private final static int PANEL_HEIGHT = 750;
 
-	//Start-Position des Schiffes
+	// Start-Position des Schiffes
 	private static final float START_X = 500;
 	private static final float START_Y = 600;
-	
+
 	private PlayerShip player = null;
 	private boolean gameRunning = false;
 
-	//Konstruktor
+	// Konstruktor
 	public GamePanel() {
 		super();
 		setBackground(Color.BLACK);
 	}
-	
-	//Damit das Fenster die richtige Größe bekommt
+
+	// Damit das Fenster die richtige Größe bekommt
 	@Override
 	public Dimension getPreferredSize() {
 		return new Dimension(PANEL_WIDTH, PANEL_HEIGHT);
 	}
-	
-	//Startet das Spiel. Ruft runGame in neuem Thread auf
+
+	// Startet das Spiel. Ruft runGame in neuem Thread auf
 	public void startGame() {
 		new Thread() {
 			@Override
@@ -45,30 +45,31 @@ public class GamePanel extends JPanel implements KeyListener {
 			}
 		}.start();
 	}
-	
-	//Die eigentliche Spielprozedur
+
+	// Die eigentliche Spielprozedur
 	private void runGame() {
-		
+
 		try {
-			//Zunächst: Neues Schiff erzeugen
+			// Zunächst: Neues Schiff erzeugen
 			player = new DefaultPlayerShip(START_X, START_Y);
 		} catch (IOException ex) {
-			//Fehler -> Meldung ausgeben
-			JOptionPane.showMessageDialog(this, ex.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
+			// Fehler -> Meldung ausgeben
+			JOptionPane.showMessageDialog(this, ex.getMessage(), "Fehler",
+					JOptionPane.ERROR_MESSAGE);
 			System.exit(0);
 			return;
 		}
-		//GameRunning auf True setzen und KeyListener hinzufügen
+		// GameRunning auf True setzen und KeyListener hinzufügen
 		gameRunning = true;
 		addKeyListener(this);
 		requestFocus();
-		
-		//Spielschleife
-		while(gameRunning) {
-			//Alle Objekte updaten
+
+		// Spielschleife
+		while (gameRunning) {
+			// Alle Objekte updaten
 			player.update();
-			//CollisionDetection etc. kommt hier auch noch hin
-			//Spielfeld neu Zeichnen
+			// CollisionDetection etc. kommt hier auch noch hin
+			// Spielfeld neu Zeichnen
 			repaint();
 			try {
 				Thread.sleep(10);
@@ -76,16 +77,16 @@ public class GamePanel extends JPanel implements KeyListener {
 				ex.printStackTrace();
 			}
 		}
-		
-		//removeKeyListener(this);
-		//gameRunning = false;
+
+		// removeKeyListener(this);
+		// gameRunning = false;
 	}
-	
-	//Zeichnen-Methode
+
+	// Zeichnen-Methode
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		
+
 		if (gameRunning) {
 			player.paintShip(g);
 		}
@@ -93,11 +94,11 @@ public class GamePanel extends JPanel implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent arg0) {
-		//Events wird an das Player-Schiff weitergeleitet
+		// Events wird an das Player-Schiff weitergeleitet
 		if (gameRunning) {
 			player.keyPressed(arg0);
 		}
-		
+
 	}
 
 	@Override
@@ -109,11 +110,11 @@ public class GamePanel extends JPanel implements KeyListener {
 		if (gameRunning) {
 			player.keyReleased(arg0);
 		}
-		
+
 	}
 
 	@Override
 	public void keyTyped(KeyEvent arg0) {
-		
+
 	}
 }
