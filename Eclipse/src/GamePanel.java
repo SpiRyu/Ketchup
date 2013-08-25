@@ -51,7 +51,7 @@ public class GamePanel extends JPanel implements KeyListener {
 
 		try {
 			// Zunächst: Neues Schiff erzeugen
-			player = new DefaultPlayerShip(START_X, START_Y);
+			player = new DefaultPlayerShipA(START_X, START_Y);
 		} catch (IOException ex) {
 			// Fehler -> Meldung ausgeben
 			JOptionPane.showMessageDialog(this, ex.getMessage(), "Fehler",

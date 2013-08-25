@@ -10,7 +10,7 @@ import javax.imageio.ImageIO;
 /* Normales Player-Schiff
  * 
  */
-public class DefaultPlayerShip extends PlayerShip {
+public class DefaultPlayerShipA extends PlayerShip {
 
 	// Konstanten: Breite und Höhe des Schiffes
 	public static final int DPS_WIDTH = 75;
@@ -32,10 +32,10 @@ public class DefaultPlayerShip extends PlayerShip {
 	private float acceleration = 0.1f;
 
 	// Konstruktor
-	public DefaultPlayerShip(float x, float y) throws IOException {
+	public DefaultPlayerShipA(float x, float y) throws IOException {
 		super(x, y, 75, 75);
 		// Datei einlesen
-		img = ImageIO.read(new File("PlayerShip.png"));
+		img = ImageIO.read(new File("PlayerShipA.png"));
 	}
 
 	// Zeichnen des Schiffes
