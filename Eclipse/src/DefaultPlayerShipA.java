@@ -35,8 +35,8 @@ public class DefaultPlayerShipA extends PlayerShip {
 
 	// Gibt die Geschwindigkeiten in X bzw. Y-Richtung an
 	private float[] velocities = { 0, 0 };
-	
-	//Maximalgeschwindigkeit in Pixel pro Schleifendurchlauf
+
+	// Maximalgeschwindigkeit in Pixel pro Schleifendurchlauf
 	private float maxvelocity = 6;
 
 	// Beschleunigung in Pixel pro Schleifendurchlauf pro Schleifendurchlauf
@@ -54,11 +54,16 @@ public class DefaultPlayerShipA extends PlayerShip {
 	@Override
 	public void paintShip(Graphics g) {
 		g.drawImage(img, (int) x, (int) y, null);
-		int xm = (int) (x + width/2);
-		int ym = (int) (y + height/2);
+		int xm = (int) (x + width / 2);
+		int ym = (int) (y + height / 2);
 		g.setColor(Color.CYAN);
-		g.drawLine(xm, ym, xm-50*direction[0], ym);
-		g.drawLine(xm, ym, xm, ym-50*direction[1]);
+		g.drawLine(xm, ym, xm - 50 * direction[0], ym);
+		g.drawLine(xm, ym, xm, ym - 50 * direction[1]);
+	}
+
+	// get Methode für die Schüsse
+	public ArrayList<DefaultShoot> getShoots() {
+		return shoots;
 	}
 
 	// Position updaten
@@ -74,7 +79,7 @@ public class DefaultPlayerShipA extends PlayerShip {
 			// Fall 2: Kommando in eine Richtung ist da -> Beschleunigen
 			else if (direction[i] != 0 && velocities[i] != maxvelocity) {
 				velocities[i] += acceleration * direction[i];
-				//Maximalgeschwindigkeit überschritten -> Reduzieren
+				// Maximalgeschwindigkeit überschritten -> Reduzieren
 				if (Math.abs(velocities[i]) > maxvelocity) {
 					velocities[i] = maxvelocity * direction[i];
 				}
@@ -115,7 +120,7 @@ public class DefaultPlayerShipA extends PlayerShip {
 			break;
 		case KeyEvent.VK_SPACE:
 			try {
-				DefaultShoot shoot = new DefaultShoot(x, y);
+				DefaultShoot shoot = new DefaultShoot((int) (x + height / 2), y);
 				shoots.add(shoot);
 
 			} catch (IOException e) {

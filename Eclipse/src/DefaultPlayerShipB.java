@@ -34,18 +34,20 @@ public class DefaultPlayerShipB extends PlayerShip {
 
 	private ArrayList<DefaultShoot> shoots;
 
-	//Gibt die Kommandos in X bzw Y-Richtung an (z.B. X: -1 = Links, 0 = Nichts, 1 = Rechts)
-	private int[] direction = {0, 0};
-	//Aktueller Winkel
+	// Gibt die Kommandos in X bzw Y-Richtung an (z.B. X: -1 = Links, 0 =
+	// Nichts, 1 = Rechts)
+	private int[] direction = { 0, 0 };
+	// Aktueller Winkel
 	private float angle = 0;
-	//Zielwinkel
+	// Zielwinkel
 	private float aimangle = 0;
-	//Winkelgeschwindigkeit. Grad pro Schleifendurchlauf
+	// Winkelgeschwindigkeit. Grad pro Schleifendurchlauf
 	private float anglevelocity = 2;
-	//Maximalgeschwindigkeit
+	// Maximalgeschwindigkeit
 	private float maxvelocity = 6;
-	//Gibt an, ob vor Ändern des Winkels gebremst werden soll.
-	//Dies sollte nur der Fall sein, wenn der Zielwinkel dem aktuellen Winkel gegenüber liegt.
+	// Gibt an, ob vor Ändern des Winkels gebremst werden soll.
+	// Dies sollte nur der Fall sein, wenn der Zielwinkel dem aktuellen Winkel
+	// gegenüber liegt.
 	private boolean firstbrake = false;
 
 	// Gibt die aktuelle Geschwindigkeiten an
@@ -68,20 +70,29 @@ public class DefaultPlayerShipB extends PlayerShip {
 		g.drawImage(img, (int) x, (int) y, null);
 		g.setColor(Color.CYAN);
 		double angleR = Math.toRadians(angle);
-		int xm = (int)(x+width/2);
-		int ym = (int)(y+height/2);
-		g.drawLine(xm, ym, (int)(xm - Math.cos(angleR)*50), (int)(ym - Math.sin(angleR)*50));
+		int xm = (int) (x + width / 2);
+		int ym = (int) (y + height / 2);
+		g.drawLine(xm, ym, (int) (xm - Math.cos(angleR) * 50),
+				(int) (ym - Math.sin(angleR) * 50));
+	}
+
+	// get Methode für die Schüsse
+	public ArrayList<DefaultShoot> getShoots() {
+		return shoots;
 	}
 
 	// Position updaten
 	@Override
 	public void update() {
-		//Wenn ein Kommando aktiv ist, die Maximalgeschwindigkeit noch nicht erreicht ist und nicht erst gebremst werden soll: Beschleunige!
-		if ((direction[0] != 0 || direction[1] != 0) && velocity < maxvelocity && !firstbrake) {
+		// Wenn ein Kommando aktiv ist, die Maximalgeschwindigkeit noch nicht
+		// erreicht ist und nicht erst gebremst werden soll: Beschleunige!
+		if ((direction[0] != 0 || direction[1] != 0) && velocity < maxvelocity
+				&& !firstbrake) {
 			velocity += acceleration;
-			if (velocity > maxvelocity) velocity = maxvelocity;
+			if (velocity > maxvelocity)
+				velocity = maxvelocity;
 		}
-		//Ansonsten: Bremsen
+		// Ansonsten: Bremsen
 		else {
 			if (velocity > 0) {
 				velocity -= acceleration;
@@ -90,20 +101,24 @@ public class DefaultPlayerShipB extends PlayerShip {
 				velocity = 0;
 			}
 			if (velocity == 0 && firstbrake) {
-				//FirstBremsung fertig. Ändere den Winkel!
+				// FirstBremsung fertig. Ändere den Winkel!
 				firstbrake = false;
 				angle = aimangle;
 			}
 		}
-		
-		//Wenn sich Winkel und Zielwinkel unterscheiden, muss der Winkel geändert werden
+
+		// Wenn sich Winkel und Zielwinkel unterscheiden, muss der Winkel
+		// geändert werden
 		if (angle != aimangle && !firstbrake) {
-			//Deffiniere die Grenzen der linken und rechten Seite vom Schiff aus gesehen
+			// Deffiniere die Grenzen der linken und rechten Seite vom Schiff
+			// aus gesehen
 			float angleleft = angle + 180;
 			float angleright = angle - 180;
-			
-			//Winkel muss sich im Bereich von Angleleft bis Angleright befinden.
-			//Ist dies nicht der Fall, wird so oft um 360° erhöht bzw vermindert, bis es im Bereich ist
+
+			// Winkel muss sich im Bereich von Angleleft bis Angleright
+			// befinden.
+			// Ist dies nicht der Fall, wird so oft um 360° erhöht bzw
+			// vermindert, bis es im Bereich ist
 			while (aimangle > angleleft) {
 				aimangle -= 360;
 			}
@@ -111,25 +126,30 @@ public class DefaultPlayerShipB extends PlayerShip {
 				aimangle += 360;
 			}
 
-			//Ist der Zielwinkel im linken Bereich, muss nach links gedreht werden.
+			// Ist der Zielwinkel im linken Bereich, muss nach links gedreht
+			// werden.
 			if (aimangle > angle && aimangle <= angleleft) {
 				angle += anglevelocity;
 			}
-			//Ist der Zielwinkel im rechten Bereich, muss nach rechts gedreht werden.
+			// Ist der Zielwinkel im rechten Bereich, muss nach rechts gedreht
+			// werden.
 			else if (angleright <= aimangle && aimangle < angle) {
 				angle -= anglevelocity;
 			}
 		}
-		
+
 		double angleR = Math.toRadians(angle);
 		x += velocity * Math.cos(angleR);
 		y += velocity * Math.sin(angleR);
 	}
-	
-	/*Setzt das Directionarray und passt den Aimangle darauf an
+
+	/*
+	 * Setzt das Directionarray und passt den Aimangle darauf an
+	 * 
 	 * @param xy 0 = X, 1 = Y
+	 * 
 	 * @param val -1, 0, 1
-	 * */ 
+	 */
 	private void setDirection(int xy, int val) {
 		if (xy != 0 && xy != 1 || val < -1 && val > 1) {
 			throw new RuntimeException("Illegal Arguments!");
@@ -137,14 +157,12 @@ public class DefaultPlayerShipB extends PlayerShip {
 		direction[xy] = val;
 		if (direction[0] == 1) {
 			aimangle = 45 * direction[1];
-		}
-		else if (direction[0] == 0 && direction[1] != 0) {
+		} else if (direction[0] == 0 && direction[1] != 0) {
 			aimangle = 90 * direction[1];
-		}
-		else if (direction[0] == -1) {
+		} else if (direction[0] == -1) {
 			aimangle = 45 * direction[1] + 180;
 		}
-		if ((angle-aimangle)%180 == 0 && (angle-aimangle)%360 != 0) {
+		if ((angle - aimangle) % 180 == 0 && (angle - aimangle) % 360 != 0) {
 			firstbrake = true;
 		}
 		if (velocity == 0) {
