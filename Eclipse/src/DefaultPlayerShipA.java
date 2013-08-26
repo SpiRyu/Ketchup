@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
@@ -8,13 +9,20 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 /* Normales Player-Schiff
+ * Dieses Schiff hat auf jeder seiner vier Seiten eine Drüße, so dass unabhängig voneinander horizontal und vertikal beschleunigt werden kann.
+ * Aktivierte Drüßen werden derzeit als blaue Linien angezeigt.
+ * Tastenbefehle:
+ * Links = Links beschleunigen (= Rechts bremsen)
+ * Rechts = Rechts beschleunigen (= Links bremsen)
+ * Oben = Vorne beschleunigen (= Hinten bremsen)
+ * Unten = Hinten beschleunigen (= Vorne bremsen)
  * 
  */
 public class DefaultPlayerShipA extends PlayerShip {
 
 	// Konstanten: Breite und Höhe des Schiffes
-	public static final int DPS_WIDTH = 75;
-	public static final int DPS_HEIGHT = 75;
+	public static final int DPS_WIDTH = 50;
+	public static final int DPS_HEIGHT = 50;
 
 	// Bild
 	private Image img;
@@ -27,13 +35,16 @@ public class DefaultPlayerShipA extends PlayerShip {
 
 	// Gibt die Geschwindigkeiten in X bzw. Y-Richtung an
 	private float[] velocities = { 0, 0 };
+	
+	//Maximalgeschwindigkeit in Pixel pro Schleifendurchlauf
+	private float maxvelocity = 6;
 
 	// Beschleunigung in Pixel pro Schleifendurchlauf pro Schleifendurchlauf
 	private float acceleration = 0.1f;
 
 	// Konstruktor
 	public DefaultPlayerShipA(float x, float y) throws IOException {
-		super(x, y, 75, 75);
+		super(x, y, DPS_WIDTH, DPS_HEIGHT);
 		// Datei einlesen
 		img = ImageIO.read(new File("PlayerShipA.png"));
 		shoots = new ArrayList<DefaultShoot>();
@@ -43,6 +54,11 @@ public class DefaultPlayerShipA extends PlayerShip {
 	@Override
 	public void paintShip(Graphics g) {
 		g.drawImage(img, (int) x, (int) y, null);
+		int xm = (int) (x + width/2);
+		int ym = (int) (y + height/2);
+		g.setColor(Color.CYAN);
+		g.drawLine(xm, ym, xm-50*direction[0], ym);
+		g.drawLine(xm, ym, xm, ym-50*direction[1]);
 	}
 
 	// Position updaten
@@ -56,8 +72,12 @@ public class DefaultPlayerShipA extends PlayerShip {
 				continue;
 			}
 			// Fall 2: Kommando in eine Richtung ist da -> Beschleunigen
-			else if (direction[i] != 0) {
+			else if (direction[i] != 0 && velocities[i] != maxvelocity) {
 				velocities[i] += acceleration * direction[i];
+				//Maximalgeschwindigkeit überschritten -> Reduzieren
+				if (Math.abs(velocities[i]) > maxvelocity) {
+					velocities[i] = maxvelocity * direction[i];
+				}
 			}
 			// Fall 3: Kein Kommando, Geschwindigkeit da -> Abbremsen
 			else if (velocities[i] != 0) {

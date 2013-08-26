@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 public class GamePanel extends JPanel implements KeyListener {
 
 	// Konstanten. Breite und Höhe
-	private final static int PANEL_WIDTH = 1000;
+	private final static int PANEL_WIDTH = 1200;
 	private final static int PANEL_HEIGHT = 750;
 
 	// Start-Position des Schiffes
@@ -51,7 +51,7 @@ public class GamePanel extends JPanel implements KeyListener {
 
 		try {
 			// Zunächst: Neues Schiff erzeugen
-			player = new DefaultPlayerShipA(START_X, START_Y);
+			player = new DefaultPlayerShipC(START_X, START_Y); //HIER ÄNDERN UM ANDERES SCHIFF ZU ERZEUGEN!
 		} catch (IOException ex) {
 			// Fehler -> Meldung ausgeben
 			JOptionPane.showMessageDialog(this, ex.getMessage(), "Fehler",
