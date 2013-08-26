@@ -27,6 +27,13 @@ public class DefaultPlayerShipA extends PlayerShip {
 	// Bild
 	private Image img;
 
+	// Boolean ob Leertaste gedrückt wurde
+	private boolean shooting = false;
+
+	// Variable die sich bei jedem update erhöht wodurch die Schüsse getimt
+	// werdern
+	private int shoottimer = 0;
+
 	private ArrayList<DefaultShoot> shoots;
 
 	// Gibt die X/Y-Richtung an in die bewegt wird (z.B. X: -1 = Links, 0 =
@@ -98,8 +105,28 @@ public class DefaultPlayerShipA extends PlayerShip {
 			}
 
 		}
+
+		shoottimer = shoottimer + 1;
+		// nach 50 threads und wenn leertaste gedrückt wurde wird ein Schuss
+		// abgefeuert
+		if (shoottimer > 50 && shooting) {
+			shoottimer = 0;
+			try {
+
+				DefaultShoot shoot = new DefaultShoot((int) ((x + width / 2)),
+						y);
+				shoots.add(shoot);
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+
 		x += velocities[0];
 		y += velocities[1];
+
 	}
 
 	// Abfangen von Tastendrücken
@@ -119,15 +146,9 @@ public class DefaultPlayerShipA extends PlayerShip {
 			direction[1] = 1;
 			break;
 		case KeyEvent.VK_SPACE:
-			try {
-				DefaultShoot shoot = new DefaultShoot(
-						(int) ((x + width / 2)), y);
-				shoots.add(shoot);
-
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			// Schussvariable wird auf true gesetzt um zu zeigen das geschossen
+			// werden sollen
+			shooting = true;
 		}
 
 	}
@@ -151,7 +172,10 @@ public class DefaultPlayerShipA extends PlayerShip {
 			if (direction[1] == 1)
 				direction[1] = 0;
 			break;
-
+		case KeyEvent.VK_SPACE:
+			// Schussvariable wird auf false gesetzt um zu zeigen das nicht mehr
+			// geschossen werden soll
+			shooting = false;
 		}
 
 	}
