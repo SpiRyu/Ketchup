@@ -36,6 +36,7 @@ public class DefaultPlayerShipA extends PlayerShip {
 		super(x, y, 75, 75);
 		// Datei einlesen
 		img = ImageIO.read(new File("PlayerShipA.png"));
+		shoots = new ArrayList<DefaultShoot>();
 	}
 
 	// Zeichnen des Schiffes
