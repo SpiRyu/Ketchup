@@ -29,7 +29,7 @@ public class DefaultShoot extends Shoot {
 
 	@Override
 	public void update() {
-		// TODO Auto-generated method stub
+		y = y - 3;
 
 	}
 }

@@ -71,6 +71,9 @@ public class GamePanel extends JPanel implements KeyListener {
 		while (gameRunning) {
 			// Alle Objekte updaten
 			player.update();
+			for (DefaultShoot shoot : player.getShoots()) {
+				shoot.update();
+			}
 			// CollisionDetection etc. kommt hier auch noch hin
 			// Spielfeld neu Zeichnen
 			repaint();
