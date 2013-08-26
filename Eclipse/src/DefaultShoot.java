@@ -7,6 +7,9 @@ import javax.imageio.ImageIO;
 
 public class DefaultShoot extends Shoot {
 
+	private static final int DS_WIDTH = 6;
+	private static final int DS_HEIGHT = 14;
+	
 	// Bild
 	private Image img;
 
@@ -15,7 +18,7 @@ public class DefaultShoot extends Shoot {
 	private int[] direction = { 0, 0 };
 
 	public DefaultShoot(float x, float y) throws IOException {
-		super(x, y, 75, 75);
+		super(x-DS_WIDTH/2, y, DS_WIDTH, DS_HEIGHT);
 		// Datei einlesen
 		img = ImageIO.read(new File("PlayerShoot.png"));
 	}

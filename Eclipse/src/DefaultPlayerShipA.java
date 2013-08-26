@@ -121,7 +121,7 @@ public class DefaultPlayerShipA extends PlayerShip {
 		case KeyEvent.VK_SPACE:
 			try {
 				DefaultShoot shoot = new DefaultShoot(
-						(int) ((x + height / 2) - 2), y);
+						(int) ((x + width / 2)), y);
 				shoots.add(shoot);
 
 			} catch (IOException e) {

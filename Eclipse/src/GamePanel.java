@@ -71,6 +71,7 @@ public class GamePanel extends JPanel implements KeyListener {
 		while (gameRunning) {
 			// Alle Objekte updaten
 			player.update();
+			//ACHTUNG: ConcurrentModificationException!
 			for (DefaultShoot shoot : player.getShoots()) {
 				shoot.update();
 			}
