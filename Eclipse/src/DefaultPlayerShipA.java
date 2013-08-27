@@ -33,6 +33,7 @@ public class DefaultPlayerShipA extends PlayerShip {
 	// Variable die sich bei jedem update erhöht wodurch die Schüsse getimt
 	// werdern
 	private int shoottimer = 0;
+	private int shootdelay = 30;
 
 	private ArrayList<DefaultShoot> shoots;
 
@@ -107,9 +108,9 @@ public class DefaultPlayerShipA extends PlayerShip {
 		}
 
 		shoottimer = shoottimer + 1;
-		// nach 50 threads und wenn leertaste gedrückt wurde wird ein Schuss
+		// nach <shootdelay> threads und wenn leertaste gedrückt wurde wird ein Schuss
 		// abgefeuert
-		if (shoottimer > 50 && shooting) {
+		if (shoottimer > shootdelay && shooting) {
 			shoottimer = 0;
 			try {
 
