@@ -8,19 +8,26 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
-/* Alternative zu ShipA, allerdings nach Ausprobieren wurde festgestellt, dass es eher ungeeignet ist zum Spielen. Empfehle eher Schiff C
- * Es ist nicht verbuggt, aber es wirkt teilweise so, weil die instinktive Steuerung der Steuerung von Schiff C entspricht.
- * Dadurch drückt der Spieler ohne es zu merken falsche Tasten
+/* Alternative zu ShipA.
  * 
- * Dieses Schiff hat nur eine Drüße, es kann also nicht nach mehreren Seiten gleichzeitig beschleunigen, um sich schneller zu bewegen.
- * Durch die Pfeiltasten lässt sich die Ausrichtung dieser Drüße ändern
- * Die aktuelle Ausrichtung der Drüße wird durch eine blaue Linie angezeigt
+ * Dieses Schiff hat genau wie Ship A an jeder Seite eine Drüße, es kann also nach mehreren Seiten gleichzeitig beschleunigen.
+ * Es ist jedoch in sofern eingeschränkt, dass die Maximalgeschwindigkeit sich nicht auf die horizontale oder vertikale Geschwindigkeit jeweils isoliert bezieht,
+ * sondern auf die Geschwindigkeit, die sich daraus gesamt ergibt.
+ * Ship A: vx < vmax && vy < vmax
+ * Ship B: vx + vy < vmax
  * 
- * Links = Drüße auf die rechte Seite steuern
- * Rechts = Drüße auf die linke Seite steuern
- * Oben = Drüße auf die untere Seite steuern
- * Unten = Drüße auf die obere Seite steuern
- * Durch Kombination von Links und Oben kann die Drüße zum Beispiel nach Links Oben bewegt werden
+ * Aktivierte Drüßen werden derzeit als blaue Linien angezeigt.
+ * Die Summe der beiden Richtungen wird als grüne Linie angezeigt.
+ * 
+ * Tastenbefehle:
+ * Links = Links beschleunigen (= Rechts bremsen)
+ * Rechts = Rechts beschleunigen (= Links bremsen)
+ * Oben = Vorne beschleunigen (= Hinten bremsen)
+ * Unten = Hinten beschleunigen (= Vorne bremsen)
+ * 
+ * 
+ * ACHTUNG, noch leicht verbuggt:
+ * Manchmal springt das Schiff einfach in die entgegengesetzte Richtung zurück!!!!
  * 
  */
 public class DefaultPlayerShipB extends PlayerShip {
@@ -37,24 +44,15 @@ public class DefaultPlayerShipB extends PlayerShip {
 	// Gibt die Kommandos in X bzw Y-Richtung an (z.B. X: -1 = Links, 0 =
 	// Nichts, 1 = Rechts)
 	private int[] direction = { 0, 0 };
-	// Aktueller Winkel
-	private float angle = 0;
-	// Zielwinkel
-	private float aimangle = 0;
-	// Winkelgeschwindigkeit. Grad pro Schleifendurchlauf
-	private float anglevelocity = 2;
-	// Maximalgeschwindigkeit
+	
+	//X, Y - Geschwindigkeit
+	private double[] velocities = {0, 0};
+	
+	//Maximalgeschwindigkeit
 	private float maxvelocity = 6;
-	// Gibt an, ob vor Ändern des Winkels gebremst werden soll.
-	// Dies sollte nur der Fall sein, wenn der Zielwinkel dem aktuellen Winkel
-	// gegenüber liegt.
-	private boolean firstbrake = false;
-
-	// Gibt die aktuelle Geschwindigkeiten an
-	private float velocity = 0;
-
+	
 	// Beschleunigung in Pixel pro Schleifendurchlauf pro Schleifendurchlauf
-	private float acceleration = 0.05f;
+	private double acceleration = 0.05f;
 
 	// Konstruktor
 	public DefaultPlayerShipB(float x, float y) throws IOException {
@@ -67,13 +65,21 @@ public class DefaultPlayerShipB extends PlayerShip {
 	// Zeichnen des Schiffes
 	@Override
 	public void paintShip(Graphics g) {
+		//Bild
 		g.drawImage(img, (int) x, (int) y, null);
+		
+		//Blaue XYLinien
 		g.setColor(Color.CYAN);
-		double angleR = Math.toRadians(angle);
 		int xm = (int) (x + width / 2);
 		int ym = (int) (y + height / 2);
-		g.drawLine(xm, ym, (int) (xm - Math.cos(angleR) * 50),
-				(int) (ym - Math.sin(angleR) * 50));
+		int xlength = -(int)(velocities[0]/maxvelocity * 70);
+		int ylength = -(int)(velocities[1]/maxvelocity * 70);
+		g.drawLine(xm, ym, xm+xlength, ym);
+		g.drawLine(xm, ym, xm, ym+ylength);
+		
+		//Grüne Linie
+		g.setColor(Color.GREEN);
+		g.drawLine(xm, ym, xm+xlength, ym+ylength);
 	}
 
 	// get Methode für die Schüsse
@@ -84,90 +90,49 @@ public class DefaultPlayerShipB extends PlayerShip {
 	// Position updaten
 	@Override
 	public void update() {
-		// Wenn ein Kommando aktiv ist, die Maximalgeschwindigkeit noch nicht
-		// erreicht ist und nicht erst gebremst werden soll: Beschleunige!
-		if ((direction[0] != 0 || direction[1] != 0) && velocity < maxvelocity
-				&& !firstbrake) {
-			velocity += acceleration;
-			if (velocity > maxvelocity)
-				velocity = maxvelocity;
-		}
-		// Ansonsten: Bremsen
-		else {
-			if (velocity > 0) {
-				velocity -= acceleration;
+		for (int i = 0; i < 2; i++) {
+			//Wenn ein Kommando aktiv ist und die Maximalgeschwindigkeit noch nicht
+			//erreicht ist: Beschleunige!
+			if (direction[i] != 0 && velocities[0]+velocities[1] < maxvelocity) {
+				velocities[i] += acceleration*direction[i];
+				//Überprüfung der Maximalgeschwindigkeit
+				if (Math.abs(velocities[0])+Math.abs(velocities[1]) > maxvelocity)
+					//Wenns größer ist, wird die aktuelle Geschwindigkeit reduziert
+					velocities[i] = (maxvelocity - Math.abs(velocities[1-i]))*direction[i];
 			}
-			if (velocity < 0) {
-				velocity = 0;
-			}
-			if (velocity == 0 && firstbrake) {
-				// FirstBremsung fertig. Ändere den Winkel!
-				firstbrake = false;
-				angle = aimangle;
-			}
-		}
-
-		// Wenn sich Winkel und Zielwinkel unterscheiden, muss der Winkel
-		// geändert werden
-		if (angle != aimangle && !firstbrake) {
-			// Deffiniere die Grenzen der linken und rechten Seite vom Schiff
-			// aus gesehen
-			float angleleft = angle + 180;
-			float angleright = angle - 180;
-
-			// Winkel muss sich im Bereich von Angleleft bis Angleright
-			// befinden.
-			// Ist dies nicht der Fall, wird so oft um 360° erhöht bzw
-			// vermindert, bis es im Bereich ist
-			while (aimangle > angleleft) {
-				aimangle -= 360;
-			}
-			while (aimangle < angleright) {
-				aimangle += 360;
-			}
-
-			// Ist der Zielwinkel im linken Bereich, muss nach links gedreht
-			// werden.
-			if (aimangle > angle && aimangle <= angleleft) {
-				angle += anglevelocity;
-			}
-			// Ist der Zielwinkel im rechten Bereich, muss nach rechts gedreht
-			// werden.
-			else if (angleright <= aimangle && aimangle < angle) {
-				angle -= anglevelocity;
+			// Ansonsten: Bremsen
+			else {
+				//Geschwindigkeit näher an 0 heranbringen
+				if (velocities[i] > 0) {
+					velocities[i] -= acceleration;
+				}
+				if (velocities[i] < 0) {
+					velocities[i] += acceleration;
+				}
+				//Überprüfung, ob sich die Geschwindigkeit aufgrund von z.B. Dezimalfehler irgendwo im Bereich [-acceleration, +acceleration] befindet.
+				//Ist dies der Fall, wird die Geschwindigkeit auf 0 gesetzt
+				if (velocities[i] < acceleration && velocities[i] > 0 || velocities[i] > -acceleration && velocities[i] < 0) {
+					velocities[i] = 0;
+				}
 			}
 		}
-
-		double angleR = Math.toRadians(angle);
-		x += velocity * Math.cos(angleR);
-		y += velocity * Math.sin(angleR);
-	}
-
-	/*
-	 * Setzt das Directionarray und passt den Aimangle darauf an
-	 * 
-	 * @param xy 0 = X, 1 = Y
-	 * 
-	 * @param val -1, 0, 1
-	 */
-	private void setDirection(int xy, int val) {
-		if (xy != 0 && xy != 1 || val < -1 && val > 1) {
-			throw new RuntimeException("Illegal Arguments!");
+		//Sollte die Maximalgeschwindigkeit durch Aktivierung von zwei Drüßen erreicht werden, sollten deren Stärken so ausgeglichen werden,
+		//dass jede Drüße für 50% der Geschwindigkeit sorgt, und so das Schiff im 45°-Winkel fliegt. 
+		double absvel0 = Math.abs(velocities[0]);
+		double absvel1 = Math.abs(velocities[1]);
+		if (direction[0] != 0 && direction[1] != 0 && absvel0 + absvel1 == maxvelocity) {
+			if (absvel0 > absvel1) {
+				velocities[0] -= acceleration * direction[0];
+				velocities[1] += acceleration * direction[1];
+			}
+			else if (absvel1 > absvel0) {
+				velocities[1] -= acceleration * direction[1];
+				velocities[0] += acceleration * direction[0];
+			}
 		}
-		direction[xy] = val;
-		if (direction[0] == 1) {
-			aimangle = 45 * direction[1];
-		} else if (direction[0] == 0 && direction[1] != 0) {
-			aimangle = 90 * direction[1];
-		} else if (direction[0] == -1) {
-			aimangle = 45 * direction[1] + 180;
-		}
-		if ((angle - aimangle) % 180 == 0 && (angle - aimangle) % 360 != 0) {
-			firstbrake = true;
-		}
-		if (velocity == 0) {
-			angle = aimangle;
-		}
+		
+		x += velocities[0];
+		y += velocities[1];
 	}
 
 	// Abfangen von Tastendrücken
@@ -175,16 +140,16 @@ public class DefaultPlayerShipB extends PlayerShip {
 	public void keyPressed(KeyEvent event) {
 		switch (event.getKeyCode()) {
 		case KeyEvent.VK_LEFT:
-			setDirection(0, -1);
+			direction[0] = -1;
 			break;
 		case KeyEvent.VK_RIGHT:
-			setDirection(0, 1);
+			direction[0] = 1;
 			break;
 		case KeyEvent.VK_UP:
-			setDirection(1, -1);
+			direction[1] = -1;
 			break;
 		case KeyEvent.VK_DOWN:
-			setDirection(1, 1);
+			direction[1] = 1;
 			break;
 		case KeyEvent.VK_SPACE:
 			try {
@@ -203,21 +168,21 @@ public class DefaultPlayerShipB extends PlayerShip {
 	@Override
 	public void keyReleased(KeyEvent event) {
 		switch (event.getKeyCode()) {
-		case KeyEvent.VK_LEFT:
-			if (direction[0] == -1)
-				setDirection(0, 0);
-			break;
-		case KeyEvent.VK_RIGHT:
-			if (direction[0] == 1)
-				setDirection(0, 0);
-			break;
-		case KeyEvent.VK_UP:
-			if (direction[1] == -1)
-				setDirection(1, 0);
-		case KeyEvent.VK_DOWN:
-			if (direction[1] == 1)
-				setDirection(1, 0);
-			break;
+			case KeyEvent.VK_LEFT:
+				if (direction[0] == -1)
+					direction[0] = 0;
+				break;
+			case KeyEvent.VK_RIGHT:
+				if (direction[0] == 1)
+					direction[0] = 0;
+				break;
+			case KeyEvent.VK_UP:
+				if (direction[1] == -1)
+					direction[1] = 0;
+			case KeyEvent.VK_DOWN:
+				if (direction[1] == 1)
+					direction[1] = 0;
+				break;
 
 		}
 

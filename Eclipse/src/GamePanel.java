@@ -51,7 +51,7 @@ public class GamePanel extends JPanel implements KeyListener {
 
 		try {
 			// Zunächst: Neues Schiff erzeugen
-			player = new DefaultPlayerShipA(START_X, START_Y); // HIER ÄNDERN UM
+			player = new DefaultPlayerShipB(START_X, START_Y); // HIER ÄNDERN UM
 																// ANDERES
 																// SCHIFF ZU
 																// ERZEUGEN!
